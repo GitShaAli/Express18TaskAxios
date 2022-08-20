@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Show</title>
+    <style>
+        body{
+            background-color: rgb(188, 188, 186);
+        }
+        input{
+            padding: 15px;
+            border-radius: 5px 10px;
+        }
+        div{
+            background-color: rgb(41, 28, 52);
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px;
+            box-shadow: 2px 2px 2px 2px black;
+            color: white;
+        }
+
+        ul {
+            list-style: none;
+            text-align: center;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        li {
+            /* width: 70%; */
+            padding: 20px;
+            font-size:x-large;
+            background: #4d3b66;
+            margin: 5px;
+            font-style: italic;
+        }
+        button{
+            float: right;
+            margin-top: -9px;
+            background: #fbfbfb;
+            color: rgb(39, 32, 32);
+            font-size:medium;
+            padding: 10px;
+            border-radius: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="my-form">
+        <div class="msg" id ="msg"></div>
+        <div>
+          <label for="name">Name :</label>
+          <input type="text" id="name">
+          <label for="email">Email:</label>
+          <input type="text" id="email">
+          </select>
+          <input class="btn" type="submit" value="Add User">
+        </div>
+      </form>
+
+    <ul class="users" id="users">
+        
+    </ul>
+    
+    <script src ="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+
+    <script type="text/javascript">
+
+    var form = document.getElementById('my-form');
+    form.addEventListener('submit',additem);
+
+
+    function showNewUserOnScreen(User){
+        const parentNode = document.getElementById("users");
+        const childNode = `<li id=${User.id}> Name : ${User.name} - Email : ${User.email} 
+                                    <button onclick=deleteUser('${User.id}')> Delete</button>
+                                    </li>`;
+        parentNode.innerHTML = parentNode.innerHTML+childNode;         
+    }
+
+
+
+
+    window.addEventListener('DOMContentLoaded', async()=>{
+        try {
+            const users = await axios.get('http://localhost:4000/userIn')
+            const parentNode = document.getElementById('users');
+            const button = document.createTextNode
+            users.data.forEach(user=>{
+                showNewUserOnScreen(user);
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    })
+
+    function removeUserFromScreen(em){
+        const parentNode = document.getElementById('users');
+        const childnode = document.getElementById(em);
+        if(childnode){
+            parentNode.removeChild(childnode);
+        }
+    }
+
+    async function additem(e){
+        try {
+            e.preventDefault();
+            var nameIn = document.getElementById('name').value;
+            var emailIn = document.getElementById('email').value;
+            let myObj = {
+                    name:nameIn,
+                    email:emailIn
+            };
+            const res = await axios.post("http://localhost:4000/userIn",myObj)
+            showNewUserOnScreen(res.data);
+            document.getElementById('name').value = "";
+            document.getElementById('email').value = "";
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function deleteUser(id){
+        try {
+            await axios.delete(`http://localhost:4000/userIn/${id}`)
+            removeUserFromScreen(id);
+        } catch (error) {
+            console.log(error);
+        } 
+    }
+
+    </script>
+</body>
+</html>
